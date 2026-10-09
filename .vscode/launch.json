@@ -1,0 +1,50 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Flutter Client (Chrome)",
+      "cwd": "client",
+      "request": "launch",
+      "type": "dart",
+      "program": "lib/main.dart",
+      "args": ["-d", "chrome"]
+    },
+    {
+      "name": "Flutter Client (Windows)",
+      "cwd": "client",
+      "request": "launch",
+      "type": "dart",
+      "program": "lib/main.dart",
+      "args": ["-d", "windows"]
+    },
+    {
+      "name": "Node.js Server",
+      "cwd": "${workspaceFolder}/server",
+      "request": "launch",
+      "type": "node",
+      "program": "${workspaceFolder}/server/server.js",
+      "restart": true,
+      "console": "integratedTerminal",
+      "internalConsoleOptions": "neverOpen"
+    },
+    {
+      "name": "Node.js Server (Dev)",
+      "cwd": "${workspaceFolder}/server",
+      "request": "launch",
+      "type": "node",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "dev"],
+      "console": "integratedTerminal"
+    }
+  ],
+  "compounds": [
+    {
+      "name": "Full Stack: Client (Chrome) & Server",
+      "configurations": ["Node.js Server", "Flutter Client (Chrome)"]
+    },
+    {
+      "name": "Full Stack: Client (Windows) & Server",
+      "configurations": ["Node.js Server", "Flutter Client (Windows)"]
+    }
+  ]
+}
