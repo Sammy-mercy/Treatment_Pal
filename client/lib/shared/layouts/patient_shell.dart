@@ -1,8 +1,8 @@
 // shared/layouts/patient_shell.dart
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import '../../core/theme/app_colors.dart';
 import '../../routing/route_paths.dart';
+import 'responsive_app_shell.dart';
 
 class PatientShell extends StatelessWidget {
   final Widget child;
@@ -37,21 +37,27 @@ class PatientShell extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: child,
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _calculateSelectedIndex(context),
-        onTap: (index) => _onItemTapped(index, context),
-        selectedItemColor: AppColors.primary,
-        unselectedItemColor: AppColors.muted,
-        type: BottomNavigationBarType.fixed,
-        items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.home_outlined), activeIcon: Icon(Icons.home), label: 'Home'),
-          BottomNavigationBarItem(icon: Icon(Icons.medication_outlined), activeIcon: Icon(Icons.medication), label: 'Regimen'),
-          BottomNavigationBarItem(icon: Icon(Icons.show_chart), label: 'Adherence'),
-          BottomNavigationBarItem(icon: Icon(Icons.notifications_none), activeIcon: Icon(Icons.notifications), label: 'Alerts'),
-        ],
-      ),
+    return ResponsiveAppShell(
+      sectionLabel: 'Patient Portal',
+      selectedIndex: _calculateSelectedIndex(context),
+      onSelected: (index) => _onItemTapped(index, context),
+      items: const [
+        ResponsiveNavItem(
+            icon: Icons.home_outlined, selectedIcon: Icons.home, label: 'Home'),
+        ResponsiveNavItem(
+            icon: Icons.medication_outlined,
+            selectedIcon: Icons.medication,
+            label: 'Regimen'),
+        ResponsiveNavItem(
+            icon: Icons.show_chart,
+            selectedIcon: Icons.show_chart,
+            label: 'Adherence'),
+        ResponsiveNavItem(
+            icon: Icons.notifications_none,
+            selectedIcon: Icons.notifications,
+            label: 'Alerts'),
+      ],
+      child: child,
     );
   }
 }

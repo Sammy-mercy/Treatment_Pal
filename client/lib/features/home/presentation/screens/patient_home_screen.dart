@@ -34,15 +34,21 @@ class PatientHomeScreen extends StatelessWidget {
               radius: 18,
               child: Text(
                 user?.initials ?? 'AR',
-                style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13),
+                style: const TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 13),
               ),
             ),
             const SizedBox(width: 10),
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('Good morning, ${user?.name.split(" ")[0] ?? "Alex"}', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
-                const Text('Recovery Plan Active', style: TextStyle(fontSize: 11, color: AppColors.muted)),
+                Text('Good morning, ${user?.name.split(" ")[0] ?? "Alex"}',
+                    style: const TextStyle(
+                        fontWeight: FontWeight.bold, fontSize: 15)),
+                const Text('Recovery Plan Active',
+                    style: TextStyle(fontSize: 11, color: AppColors.muted)),
               ],
             ),
           ],
@@ -58,46 +64,80 @@ class PatientHomeScreen extends StatelessWidget {
           ),
         ],
       ),
-      body: ListView(
-        padding: const EdgeInsets.all(16),
-        children: [
-          // Dashboard Summary Card (SHARED)
-          DashboardSummaryCard(
+      body: LayoutBuilder(
+        builder: (context, constraints) {
+          final isWide = constraints.maxWidth >= 1000;
+          final progressCard = DashboardSummaryCard(
             title: "Today's Progress",
             primaryMetric: "3 of 7 doses logged",
             subtitle: "Next: Ibuprofen 200 mg at 1:00 PM with food",
             progressPercent: compliance / 100.0,
-          ),
-          const SizedBox(height: 20),
-
-          // Regimen section
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          );
+          final regimenSection = Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              const Text('Current Regimen', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: AppColors.ink)),
-              TextButton(
-                onPressed: () => context.push(RoutePaths.patientRegimens),
-                child: const Text('View All', style: TextStyle(fontWeight: FontWeight.bold, color: AppColors.primary)),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text('Current Regimen',
+                      style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
+                          color: AppColors.ink)),
+                  TextButton(
+                    onPressed: () => context.push(RoutePaths.patientRegimens),
+                    child: const Text('View All',
+                        style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color: AppColors.primary)),
+                  ),
+                ],
               ),
+              const SizedBox(height: 8),
+              ...allItems.take(3).map(
+                    (item) => RegimenCard(
+                      item: item,
+                      onLogDose: () {
+                        adherenceProvider.logDose(item.id, 'taken');
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                              content: Text('${item.drugName} dose logged!')),
+                        );
+                      },
+                      onToggleActive: () {
+                        regimenProvider.toggleItemActive('reg_01', item.id);
+                      },
+                    ),
+                  ),
             ],
-          ),
-          const SizedBox(height: 8),
+          );
 
-          ...allItems.take(3).map(
-                (item) => RegimenCard(
-                  item: item,
-                  onLogDose: () {
-                    adherenceProvider.logDose(item.id, 'taken');
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('${item.drugName} dose logged!')),
-                    );
-                  },
-                  onToggleActive: () {
-                    regimenProvider.toggleItemActive('reg_01', item.id);
-                  },
-                ),
+          return Center(
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 1152),
+              child: SingleChildScrollView(
+                padding: EdgeInsets.all(isWide ? 24 : 16),
+                child: isWide
+                    ? Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          SizedBox(width: 360, child: progressCard),
+                          const SizedBox(width: 24),
+                          Expanded(child: regimenSection),
+                        ],
+                      )
+                    : Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          progressCard,
+                          const SizedBox(height: 20),
+                          regimenSection
+                        ],
+                      ),
               ),
-        ],
+            ),
+          );
+        },
       ),
     );
   }

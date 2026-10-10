@@ -1,8 +1,8 @@
 // shared/layouts/clinician_shell.dart
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import '../../core/theme/app_colors.dart';
 import '../../routing/route_paths.dart';
+import 'responsive_app_shell.dart';
 
 class ClinicianShell extends StatelessWidget {
   final Widget child;
@@ -37,22 +37,29 @@ class ClinicianShell extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: child,
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _calculateSelectedIndex(context),
-        onTap: (index) => _onItemTapped(index, context),
-        selectedItemColor: AppColors.primary,
-        unselectedItemColor: AppColors.muted,
-        type: BottomNavigationBarType.fixed,
-        items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.dashboard_outlined), activeIcon: Icon(Icons.dashboard), label: 'Dashboard'),
-          BottomNavigationBarItem(icon: Icon(Icons.people_outline), activeIcon: Icon(Icons.people), label: 'Patients'),
-          BottomNavigationBarItem(icon: Icon(Icons.analytics_outlined), activeIcon: Icon(Icons.analytics), label: 'Analytics'),
-          BottomNavigationBarItem(icon: Icon(Icons.settings_outlined), activeIcon: Icon(Icons.settings), label: 'Settings'),
-        ],
-      ),
+    return ResponsiveAppShell(
+      sectionLabel: 'Clinician Portal',
+      selectedIndex: _calculateSelectedIndex(context),
+      onSelected: (index) => _onItemTapped(index, context),
+      items: const [
+        ResponsiveNavItem(
+            icon: Icons.dashboard_outlined,
+            selectedIcon: Icons.dashboard,
+            label: 'Dashboard'),
+        ResponsiveNavItem(
+            icon: Icons.people_outline,
+            selectedIcon: Icons.people,
+            label: 'Patients'),
+        ResponsiveNavItem(
+            icon: Icons.analytics_outlined,
+            selectedIcon: Icons.analytics,
+            label: 'Analytics'),
+        ResponsiveNavItem(
+            icon: Icons.settings_outlined,
+            selectedIcon: Icons.settings,
+            label: 'Settings'),
+      ],
+      child: child,
     );
   }
 }
- 
