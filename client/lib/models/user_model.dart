@@ -1,6 +1,6 @@
 // models/user_model.dart
 
-enum UserRole { patient, clinician }
+enum UserRole { patient, clinician, admin }
 
 class UserModel {
   final String id;
@@ -30,7 +30,9 @@ class UserModel {
     if (parts.length > 1) {
       return '${parts[0][0]}${parts[1][0]}'.toUpperCase();
     }
-    return parts.isNotEmpty && parts[0].isNotEmpty ? parts[0][0].toUpperCase() : 'U';
+    return parts.isNotEmpty && parts[0].isNotEmpty
+        ? parts[0][0].toUpperCase()
+        : 'U';
   }
 
   factory UserModel.fromJson(Map<String, dynamic> json) {
@@ -38,7 +40,11 @@ class UserModel {
       id: json['id'] ?? '',
       name: json['name'] ?? '',
       email: json['email'] ?? '',
-      role: json['role'] == 'clinician' ? UserRole.clinician : UserRole.patient,
+      role: switch (json['role']) {
+        'admin' => UserRole.admin,
+        'clinician' => UserRole.clinician,
+        _ => UserRole.patient,
+      },
       phone: json['phone'],
       dob: json['dob'],
       npi: json['npi'],
@@ -52,7 +58,7 @@ class UserModel {
       'id': id,
       'name': name,
       'email': email,
-      'role': role == UserRole.clinician ? 'clinician' : 'patient',
+      'role': role.name,
       'phone': phone,
       'dob': dob,
       'npi': npi,

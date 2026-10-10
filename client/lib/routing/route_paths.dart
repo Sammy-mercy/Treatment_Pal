@@ -5,6 +5,7 @@ class RoutePaths {
   static const String splash = '/splash';
   static const String login = '/login';
   static const String register = '/register';
+  static const String adminDashboard = '/admin/dashboard';
 
   // Patient Routes
   static const String patientHome = '/patient/home';
@@ -20,7 +21,7 @@ class RoutePaths {
   static const String clinicianPatientDetail = '/clinician/patients/:id';
   static const String clinicianCreateRegimen = '/clinician/regimens/create';
   static const String clinicianEditRegimen = '/clinician/regimens/:id/edit';
-  static const String clinicianAdherenceOverview = '/clinician/adherence-overview';
+  static const String clinicianAdherenceOverview =
+      '/clinician/adherence-overview';
   static const String clinicianSettings = '/clinician/settings';
 }
- 

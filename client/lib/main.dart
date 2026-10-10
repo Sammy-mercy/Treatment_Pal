@@ -1,9 +1,12 @@
 // main.dart
+import 'dart:async';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 // Core Network
 import 'core/network/api_client.dart';
+import 'core/analytics/visit_tracker.dart';
 
 // Feature Repositories & Services
 import 'features/auth/data/auth_repository.dart';
@@ -19,12 +22,15 @@ import 'features/notifications/data/notification_service.dart';
 import 'features/notifications/logic/notification_provider.dart';
 
 import 'app.dart';
+import 'firebase_options.dart';
 
-void main() {
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
   // Instantiate singleton network client
   final apiClient = ApiClient();
+  unawaited(VisitTracker.recordAnonymousVisit(apiClient));
 
   // Instantiate repositories
   final authRepository = AuthRepository(apiClient);
@@ -37,6 +43,7 @@ void main() {
   runApp(
     MultiProvider(
       providers: [
+        Provider<ApiClient>.value(value: apiClient),
         ChangeNotifierProvider(
           create: (_) => AuthProvider(authRepository),
         ),
@@ -57,4 +64,3 @@ void main() {
     ),
   );
 }
- 

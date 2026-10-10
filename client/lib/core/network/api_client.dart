@@ -8,18 +8,25 @@ import 'api_exception.dart';
 class ApiClient {
   final http.Client _client = http.Client();
   String? _authToken;
+  Future<String?>? Function()? _authTokenProvider;
 
   void setAuthToken(String? token) {
     _authToken = token;
   }
 
-  Map<String, String> _buildHeaders() {
+  void setAuthTokenProvider(Future<String?>? Function()? provider) {
+    _authTokenProvider = provider;
+  }
+
+  Future<Map<String, String>> _buildHeaders() async {
     final headers = <String, String>{
       'Content-Type': 'application/json',
       'Accept': 'application/json',
     };
-    if (_authToken != null) {
-      headers['Authorization'] = 'Bearer $_authToken';
+    final token =
+        _authTokenProvider == null ? _authToken : await _authTokenProvider!();
+    if (token != null) {
+      headers['Authorization'] = 'Bearer $token';
     }
     return headers;
   }
@@ -29,7 +36,9 @@ class ApiClient {
   Future<dynamic> get(String endpoint) async {
     final uri = Uri.parse('${AppConstants.apiBaseUrl}$endpoint');
     try {
-      final response = await _client.get(uri, headers: _buildHeaders()).timeout(_timeout);
+      final response = await _client
+          .get(uri, headers: await _buildHeaders())
+          .timeout(_timeout);
       return _handleResponse(response);
     } catch (e) {
       _handleNetworkError(e);
@@ -42,7 +51,7 @@ class ApiClient {
       final response = await _client
           .post(
             uri,
-            headers: _buildHeaders(),
+            headers: await _buildHeaders(),
             body: body != null ? jsonEncode(body) : null,
           )
           .timeout(_timeout);
@@ -58,7 +67,7 @@ class ApiClient {
       final response = await _client
           .put(
             uri,
-            headers: _buildHeaders(),
+            headers: await _buildHeaders(),
             body: body != null ? jsonEncode(body) : null,
           )
           .timeout(_timeout);
@@ -74,7 +83,7 @@ class ApiClient {
       final response = await _client
           .patch(
             uri,
-            headers: _buildHeaders(),
+            headers: await _buildHeaders(),
             body: body != null ? jsonEncode(body) : null,
           )
           .timeout(_timeout);
@@ -91,7 +100,9 @@ class ApiClient {
       return body;
     }
 
-    final message = body is Map && body['error'] != null ? body['error'] : 'HTTP ${response.statusCode}';
+    final message = body is Map && body['error'] != null
+        ? body['error']
+        : 'HTTP ${response.statusCode}';
 
     switch (response.statusCode) {
       case 401:
@@ -101,7 +112,8 @@ class ApiClient {
       case 404:
         throw NotFoundException(message: message.toString());
       default:
-        throw ApiException(message: message.toString(), statusCode: response.statusCode);
+        throw ApiException(
+            message: message.toString(), statusCode: response.statusCode);
     }
   }
 

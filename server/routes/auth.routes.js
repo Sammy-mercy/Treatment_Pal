@@ -3,14 +3,13 @@ const express = require('express');
 const router = express.Router();
 const authController = require('../controllers/auth.controller');
 const { validateLogin, validateRegister } = require('../validators/auth.validator');
+const authenticateFirebase = require('../middleware/authenticateFirebase');
 
-// POST /api/auth/login
+// Server-provisioned admin login. Patient/clinician credentials are verified by Firebase Auth.
 router.post('/login', validateLogin, authController.login);
 
-// POST /api/auth/register
-router.post('/register', validateRegister, authController.register);
+router.post('/session', authenticateFirebase, authController.createSession);
+router.post('/register', authenticateFirebase, validateRegister, authController.register);
 
 // POST /api/auth/refresh
-router.post('/refresh', authController.refreshToken);
-
 module.exports = router;

@@ -4,8 +4,17 @@ const authService = require('../services/auth.service');
 async function login(req, res, next) {
   try {
     const { email, password } = req.body;
-    const result = await authService.login(email, password);
+    const result = await authService.loginAdmin(email, password);
     res.status(200).json(result);
+  } catch (error) {
+    next(error);
+  }
+}
+
+async function createSession(req, res, next) {
+  try {
+    const user = await authService.getFirebaseUser(req.firebaseIdentity);
+    res.status(200).json({ user });
   } catch (error) {
     next(error);
   }
@@ -13,18 +22,8 @@ async function login(req, res, next) {
 
 async function register(req, res, next) {
   try {
-    const result = await authService.register(req.body);
-    res.status(201).json(result);
-  } catch (error) {
-    next(error);
-  }
-}
-
-async function refreshToken(req, res, next) {
-  try {
-    const { refreshToken: token } = req.body;
-    const result = await authService.refreshToken(token);
-    res.status(200).json(result);
+    const user = await authService.register(req.body, req.firebaseIdentity);
+    res.status(201).json({ user });
   } catch (error) {
     next(error);
   }
@@ -32,6 +31,6 @@ async function refreshToken(req, res, next) {
 
 module.exports = {
   login,
+  createSession,
   register,
-  refreshToken
 };

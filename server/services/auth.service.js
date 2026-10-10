@@ -1,70 +1,84 @@
-// services/auth.service.js
-const User = require('../models/User');
+const crypto = require('crypto');
+const jwt = require('jsonwebtoken');
+const db = require('../config/db');
 
-// Seeded users
-const usersStore = [
-  new User({
-    id: 'usr_patient_01',
-    name: 'Alex Rivera',
-    email: 'alex.rivera@email.com',
-    role: 'patient',
-    phone: '(415) 555-0134',
-    dob: '1991-03-14',
-    assignedClinicianId: 'usr_clinician_01'
-  }),
-  new User({
-    id: 'usr_clinician_01',
-    name: 'Dr. Sarah Carter',
-    email: 's.carter@downtownclinic.org',
-    role: 'clinician',
-    npi: '1740293847',
-    specialization: 'Internal Medicine',
-    phone: '(415) 555-0921'
-  })
-];
+function issueAdminToken(email) {
+  if (!process.env.ADMIN_TOKEN_SECRET) {
+    throw { statusCode: 503, message: 'Admin authentication is not configured' };
+  }
+  return jwt.sign({
+    uid: `admin:${email.toLowerCase()}`,
+    id: `admin:${email.toLowerCase()}`,
+    email,
+    name: 'Therapy Pal Admin',
+    role: 'admin',
+  }, process.env.ADMIN_TOKEN_SECRET, { expiresIn: '12h' });
+}
+
+function safeEqual(left, right) {
+  const a = Buffer.from(left || '');
+  const b = Buffer.from(right || '');
+  return a.length === b.length && crypto.timingSafeEqual(a, b);
+}
+
+function toPublicUser(document) {
+  if (!document) return null;
+  const { _id, ...user } = document;
+  return { ...user, id: user.id || user.firebaseUid };
+}
 
 class AuthService {
-  async login(email, password) {
-    const user = usersStore.find((u) => u.email.toLowerCase() === email.toLowerCase());
-    if (!user) {
+  async loginAdmin(email, password) {
+    const configuredEmail = process.env.ADMIN_EMAIL || '';
+    if (!configuredEmail || email.toLowerCase() !== configuredEmail.toLowerCase() ||
+        !safeEqual(password, process.env.ADMIN_PASSWORD)) {
       throw { statusCode: 401, message: 'Invalid credentials' };
     }
 
-    const token = `jwt_mock_${user.role}_${Date.now()}`;
-    const refreshToken = `ref_mock_${user.role}_${Date.now()}`;
-
-    return {
-      user: user.toJSON(),
-      token,
-      refreshToken
+    const user = {
+      id: `admin:${configuredEmail.toLowerCase()}`,
+      name: 'Therapy Pal Admin',
+      email: configuredEmail,
+      role: 'admin',
     };
+    return { user, token: issueAdminToken(configuredEmail) };
   }
 
-  async register(data) {
-    const existing = usersStore.find((u) => u.email.toLowerCase() === data.email.toLowerCase());
-    if (existing) {
-      throw { statusCode: 409, message: 'User with this email already exists' };
-    }
-
-    const newUser = new User(data);
-    usersStore.push(newUser);
-
-    const token = `jwt_mock_${newUser.role}_${Date.now()}`;
-    return {
-      user: newUser.toJSON(),
-      token
-    };
+  async getFirebaseUser(firebaseIdentity) {
+    const firebaseUid = firebaseIdentity.uid || firebaseIdentity.sub;
+    if (!firebaseUid) throw { statusCode: 401, message: 'Firebase identity has no user id' };
+    const document = await db.findUserById(firebaseUid);
+    if (!document) throw { statusCode: 404, message: 'Profile not found; complete account registration first' };
+    return toPublicUser(document);
   }
 
-  async refreshToken(refreshToken) {
-    if (!refreshToken) throw { statusCode: 400, message: 'Refresh token required' };
-    return {
-      token: `jwt_mock_refreshed_${Date.now()}`
-    };
-  }
+  async register(data, firebaseIdentity) {
+    const firebaseUid = firebaseIdentity.uid || firebaseIdentity.sub;
+    const email = (firebaseIdentity.email || '').toLowerCase();
+    if (!firebaseUid || !email) throw { statusCode: 401, message: 'Verified Firebase email identity is required' };
 
-  getUsersStore() {
-    return usersStore;
+    const existing = await db.findUserById(firebaseUid);
+    if (existing) throw { statusCode: 409, message: 'Profile already exists for this account' };
+    const existingEmail = await db.findUserByEmail(email);
+    if (existingEmail) throw { statusCode: 409, message: 'A profile already exists for this email' };
+
+    const user = {
+      id: firebaseUid,
+      firebaseUid,
+      name: data.name.trim(),
+      email,
+      role: data.role,
+      phone: data.phone || '',
+      dob: data.dob || '',
+      npi: data.npi || null,
+      specialization: data.specialization || null,
+      assignedClinicianId: null,
+      createdAt: new Date(),
+      lastActiveAt: null,
+      totalVisits: 0,
+    };
+    await db.createUser(user);
+    return toPublicUser(user);
   }
 }
 

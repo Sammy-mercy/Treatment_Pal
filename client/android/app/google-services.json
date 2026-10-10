@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1091313639262",
+    "project_id": "therapy-pal-c90a4",
+    "storage_bucket": "therapy-pal-c90a4.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1091313639262:android:f4013ac118bf0b882679cf",
+        "android_client_info": {
+          "package_name": "com.example.therapy_pal"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDJfcVg3FUojutYXpSXN_Hk_hG93T1EV7Y"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

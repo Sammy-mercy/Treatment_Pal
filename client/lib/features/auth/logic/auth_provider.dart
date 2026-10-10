@@ -1,5 +1,6 @@
 // features/auth/logic/auth_provider.dart
 import 'package:flutter/foundation.dart';
+import 'package:firebase_auth/firebase_auth.dart' show FirebaseAuthException;
 import '../../../models/user_model.dart';
 import '../data/auth_repository.dart';
 
@@ -18,64 +19,65 @@ class AuthProvider extends ChangeNotifier {
   bool get isLoading => _isLoading;
   String? get errorMessage => _errorMessage;
 
-  Future<bool> login(String email, String password) async {
+  Future<bool> login(String email, String password,
+      {UserRole requestedRole = UserRole.patient}) async {
     _isLoading = true;
     _errorMessage = null;
     notifyListeners();
 
     try {
-      final result = await _repository.login(email, password);
+      final result =
+          await _repository.login(email, password, role: requestedRole);
       _currentUser = result['user'] as UserModel;
       _isLoading = false;
       notifyListeners();
       return true;
-    } catch (e) {
-      // Local demo fallback if backend is offline
-      if (email.contains('carter')) {
-        _currentUser = UserModel(
-          id: 'usr_clinician_01',
-          name: 'Dr. Sarah Carter',
-          email: 's.carter@downtownclinic.org',
-          role: UserRole.clinician,
-          npi: '1740293847',
-          specialization: 'Internal Medicine',
-        );
-      } else {
-        _currentUser = UserModel(
-          id: 'usr_patient_01',
-          name: 'Alex Rivera',
-          email: email,
-          role: UserRole.patient,
-          phone: '(415) 555-0134',
-        );
-      }
+    } on FirebaseAuthException catch (error) {
+      _errorMessage = switch (error.code) {
+        'invalid-credential' || 'wrong-password' || 'user-not-found' =>
+          'Email or password is incorrect, or this account is not registered in this Firebase project.',
+        'user-disabled' => 'This account has been disabled.',
+        'too-many-requests' => 'Too many sign-in attempts. Wait a while and try again.',
+        'network-request-failed' => 'Network error while contacting Firebase. Check your connection.',
+        _ => error.message ?? 'Firebase sign-in failed (${error.code}).',
+      };
       _isLoading = false;
       notifyListeners();
-      return true;
+      return false;
+    } catch (e) {
+      _errorMessage = e.toString();
+      _isLoading = false;
+      notifyListeners();
+      return false;
     }
   }
 
-  void switchDemoRole(UserRole role) {
-    if (role == UserRole.patient) {
-      _currentUser = UserModel(
-        id: 'usr_patient_01',
-        name: 'Alex Rivera',
-        email: 'alex.rivera@email.com',
-        role: UserRole.patient,
-        phone: '(415) 555-0134',
-        dob: 'March 14, 1991',
-      );
-    } else {
-      _currentUser = UserModel(
-        id: 'usr_clinician_01',
-        name: 'Dr. Sarah Carter',
-        email: 's.carter@downtownclinic.org',
-        role: UserRole.clinician,
-        npi: '1740293847',
-        specialization: 'Internal Medicine',
-      );
-    }
+  Future<bool> register({
+    required String name,
+    required String email,
+    required String password,
+    required UserRole role,
+  }) async {
+    _isLoading = true;
+    _errorMessage = null;
     notifyListeners();
+    try {
+      final result = await _repository.register(
+        name: name,
+        email: email,
+        password: password,
+        role: role,
+      );
+      _currentUser = result['user'] as UserModel;
+      _isLoading = false;
+      notifyListeners();
+      return true;
+    } catch (error) {
+      _errorMessage = error.toString();
+      _isLoading = false;
+      notifyListeners();
+      return false;
+    }
   }
 
   void logout() {

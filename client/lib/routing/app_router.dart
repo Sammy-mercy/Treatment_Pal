@@ -15,6 +15,7 @@ import '../features/adherence/presentation/screens/patient/adherence_log_screen.
 import '../features/adherence/presentation/screens/clinician/adherence_overview_screen.dart';
 import '../features/patient_directory/presentation/screens/patient_list_screen.dart';
 import '../features/notifications/presentation/screens/notification_settings_screen.dart';
+import '../features/admin/presentation/screens/admin_dashboard_screen.dart';
 import '../shared/layouts/patient_shell.dart';
 import '../shared/layouts/clinician_shell.dart';
 import 'route_paths.dart';
@@ -22,7 +23,8 @@ import 'route_guard.dart';
 
 final GlobalKey<NavigatorState> _rootNavigatorKey = GlobalKey<NavigatorState>();
 final GlobalKey<NavigatorState> _patientShellKey = GlobalKey<NavigatorState>();
-final GlobalKey<NavigatorState> _clinicianShellKey = GlobalKey<NavigatorState>();
+final GlobalKey<NavigatorState> _clinicianShellKey =
+    GlobalKey<NavigatorState>();
 
 GoRouter createAppRouter(AuthProvider authProvider) {
   return GoRouter(
@@ -53,6 +55,10 @@ GoRouter createAppRouter(AuthProvider authProvider) {
       GoRoute(
         path: RoutePaths.register,
         builder: (context, state) => const RegisterScreen(),
+      ),
+      GoRoute(
+        path: RoutePaths.adminDashboard,
+        builder: (context, state) => const AdminDashboardScreen(),
       ),
 
       // Patient Shell Navigation
@@ -94,7 +100,8 @@ GoRouter createAppRouter(AuthProvider authProvider) {
           ),
           GoRoute(
             path: RoutePaths.clinicianAdherenceOverview,
-            builder: (context, state) => const ClinicianAdherenceOverviewScreen(),
+            builder: (context, state) =>
+                const ClinicianAdherenceOverviewScreen(),
           ),
           GoRoute(
             path: RoutePaths.clinicianSettings,
@@ -126,4 +133,3 @@ GoRouter createAppRouter(AuthProvider authProvider) {
     ],
   );
 }
- 

@@ -13,6 +13,8 @@ class User {
     this.specialization = data.specialization || null;
     this.assignedClinicianId = data.assignedClinicianId || null; // Patient only
     this.createdAt = data.createdAt || new Date().toISOString();
+    this.lastActiveAt = data.lastActiveAt || null;
+    this.totalVisits = data.totalVisits || 0;
   }
 
   toJSON() {
@@ -26,7 +28,9 @@ class User {
       npi: this.npi,
       specialization: this.specialization,
       assignedClinicianId: this.assignedClinicianId,
-      createdAt: this.createdAt
+      createdAt: this.createdAt,
+      lastActiveAt: this.lastActiveAt,
+      totalVisits: this.totalVisits
     };
   }
 }

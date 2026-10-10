@@ -1,6 +1,7 @@
 // features/auth/presentation/screens/register_screen.dart
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/utils/validators.dart';
 import '../../../../models/user_model.dart';
@@ -8,6 +9,7 @@ import '../../../../routing/route_paths.dart';
 import '../../../../shared/widgets/primary_button.dart';
 import '../../../../shared/widgets/app_text_field.dart';
 import '../../../../shared/widgets/brand_logo.dart';
+import '../../logic/auth_provider.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -23,8 +25,24 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final _passwordController = TextEditingController();
   UserRole _role = UserRole.patient;
 
+  Future<void> _submitRegistration() async {
+    if (!_formKey.currentState!.validate()) return;
+    final authProvider = context.read<AuthProvider>();
+    final registered = await authProvider.register(
+      name: _nameController.text.trim(),
+      email: _emailController.text.trim(),
+      password: _passwordController.text,
+      role: _role,
+    );
+    if (!registered || !mounted) return;
+    context.go(_role == UserRole.clinician
+        ? RoutePaths.clinicianHome
+        : RoutePaths.patientHome);
+  }
+
   @override
   Widget build(BuildContext context) {
+    final authProvider = context.watch<AuthProvider>();
     return Scaffold(
       backgroundColor: AppColors.ground,
       appBar: AppBar(title: const Text('Create Account')),
@@ -92,13 +110,16 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           setState(() => _role = val ?? UserRole.patient),
                     ),
                     const SizedBox(height: 28),
+                    if (authProvider.errorMessage != null) ...[
+                      Text(authProvider.errorMessage!,
+                          style: const TextStyle(
+                              color: AppColors.danger, fontSize: 12)),
+                      const SizedBox(height: 12),
+                    ],
                     PrimaryButton(
                       label: 'Complete Registration',
-                      onPressed: () {
-                        if (_formKey.currentState!.validate()) {
-                          context.go(RoutePaths.login);
-                        }
-                      },
+                      onPressed: _submitRegistration,
+                      isLoading: authProvider.isLoading,
                     ),
                   ],
                 ),

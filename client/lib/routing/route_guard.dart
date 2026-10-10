@@ -19,7 +19,21 @@ class RouteGuard {
 
     // 2. If authenticated user tries to visit login/register, redirect to appropriate home
     if (isAuthRoute && targetPath != RoutePaths.splash) {
-      return userRole == UserRole.clinician ? RoutePaths.clinicianHome : RoutePaths.patientHome;
+      return switch (userRole) {
+        UserRole.admin => RoutePaths.adminDashboard,
+        UserRole.clinician => RoutePaths.clinicianHome,
+        _ => RoutePaths.patientHome,
+      };
+    }
+
+    if (targetPath.startsWith('/admin') && userRole != UserRole.admin) {
+      return userRole == UserRole.clinician
+          ? RoutePaths.clinicianHome
+          : RoutePaths.patientHome;
+    }
+
+    if (userRole == UserRole.admin && !targetPath.startsWith('/admin')) {
+      return RoutePaths.adminDashboard;
     }
 
     // 3. Role-based route enforcement
@@ -34,4 +48,3 @@ class RouteGuard {
     return null; // Access granted
   }
 }
- 

@@ -10,6 +10,8 @@ const regimenRoutes = require('./routes/regimen.routes');
 const adherenceRoutes = require('./routes/adherence.routes');
 const userRoutes = require('./routes/user.routes');
 const notificationRoutes = require('./routes/notification.routes');
+const analyticsRoutes = require('./routes/analytics.routes');
+const adminRoutes = require('./routes/admin.routes');
 
 const app = express();
 
@@ -29,6 +31,8 @@ app.use('/api/regimens', regimenRoutes);
 app.use('/api/adherence-logs', adherenceRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/notifications', notificationRoutes);
+app.use('/api/analytics', analyticsRoutes);
+app.use('/api/admin', adminRoutes);
 
 // 404 Handler
 app.use((req, res, next) => {
