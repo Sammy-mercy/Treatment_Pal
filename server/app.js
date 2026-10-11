@@ -20,6 +20,17 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+// Root route for API availability and routing entry point
+app.get('/', (req, res) => {
+  res.status(200).json({
+    status: 'ok',
+    service: 'Therapy Pal API',
+    message: 'App is running. The Flutter web entry point redirects to the splash screen and then the login screen.',
+    health: '/health',
+    api: '/api/auth'
+  });
+});
+
 // Health Check Endpoint
 app.get('/health', (req, res) => {
   res.status(200).json({ status: 'healthy', timestamp: new Date().toISOString() });
