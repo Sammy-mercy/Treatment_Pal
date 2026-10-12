@@ -1,6 +1,7 @@
 // features/auth/logic/auth_provider.dart
 import 'package:flutter/foundation.dart';
 import 'package:firebase_auth/firebase_auth.dart' show FirebaseAuthException;
+import '../../../core/network/api_exception.dart';
 import '../../../models/user_model.dart';
 import '../data/auth_repository.dart';
 
@@ -44,8 +45,13 @@ class AuthProvider extends ChangeNotifier {
       _isLoading = false;
       notifyListeners();
       return false;
+    } on ApiException catch (error) {
+      _errorMessage = error.message;
+      _isLoading = false;
+      notifyListeners();
+      return false;
     } catch (e) {
-      _errorMessage = e.toString();
+      _errorMessage = 'Sign in failed. Please try again.';
       _isLoading = false;
       notifyListeners();
       return false;
@@ -72,8 +78,13 @@ class AuthProvider extends ChangeNotifier {
       _isLoading = false;
       notifyListeners();
       return true;
+    } on ApiException catch (error) {
+      _errorMessage = error.message;
+      _isLoading = false;
+      notifyListeners();
+      return false;
     } catch (error) {
-      _errorMessage = error.toString();
+      _errorMessage = 'Unable to register right now. Please try again.';
       _isLoading = false;
       notifyListeners();
       return false;
