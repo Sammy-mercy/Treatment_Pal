@@ -27,8 +27,8 @@ class _LoginScreenState extends State<LoginScreen> {
   void _onRoleChanged(UserRole role) {
     setState(() {
       _selectedRole = role;
-        _emailController.clear();
-        _passwordController.clear();
+      _emailController.clear();
+      _passwordController.clear();
     });
   }
 
@@ -64,11 +64,12 @@ class _LoginScreenState extends State<LoginScreen> {
             color: selected ? Colors.white : Colors.transparent,
             borderRadius: BorderRadius.circular(10),
             boxShadow: selected
-                ? [
+                ? const [
                     BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.06),
-                        blurRadius: 4,
-                        offset: const Offset(0, 2))
+                      color: Color(0x0F000000),
+                      blurRadius: 4,
+                      offset: Offset(0, 2),
+                    )
                   ]
                 : null,
           ),
@@ -77,7 +78,7 @@ class _LoginScreenState extends State<LoginScreen> {
             textAlign: TextAlign.center,
             style: TextStyle(
               fontSize: 12,
-              fontWeight: FontWeight.bold,
+              fontWeight: FontWeight.w700,
               color: selected ? AppColors.ink : AppColors.muted,
             ),
           ),
@@ -89,127 +90,264 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     final authProvider = context.watch<AuthProvider>();
+    final isWide = MediaQuery.of(context).size.width >= 900;
+
+    final form = Center(
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: 460),
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 22),
+          child: Form(
+            key: _formKey,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Row(
+                  children: [
+                    BrandLogo(width: 44, height: 44),
+                    SizedBox(width: 12),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Therapy Pal',
+                          style: TextStyle(
+                            fontWeight: FontWeight.w700,
+                            fontSize: 18,
+                            color: AppColors.ink,
+                            letterSpacing: -0.3,
+                          ),
+                        ),
+                        Text(
+                          'Treatment Regimen',
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: AppColors.muted,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 28),
+                const Text(
+                  'Welcome back',
+                  style: TextStyle(
+                    fontSize: 26,
+                    fontWeight: FontWeight.w700,
+                    color: AppColors.ink,
+                    letterSpacing: -0.7,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                const Text(
+                  'Sign in to follow your regimen or manage your patient panel.',
+                  style: TextStyle(fontSize: 14, color: AppColors.muted, height: 1.5),
+                ),
+                const SizedBox(height: 22),
+                Container(
+                  padding: const EdgeInsets.all(4),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFE6EEF0),
+                    borderRadius: BorderRadius.circular(14),
+                  ),
+                  child: Row(
+                    children: [
+                      _roleOption(UserRole.patient, 'Patient'),
+                      _roleOption(UserRole.clinician, 'Clinician'),
+                      _roleOption(UserRole.admin, 'Admin'),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 18),
+                if (authProvider.errorMessage != null) ...[
+                  Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: AppColors.dangerBg,
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: Row(
+                      children: [
+                        const Icon(Icons.error_outline, size: 18, color: AppColors.danger),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: Text(
+                            authProvider.errorMessage!,
+                            style: const TextStyle(
+                              color: AppColors.danger,
+                              fontSize: 12.5,
+                              fontWeight: FontWeight.w600,
+                              height: 1.4,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 14),
+                ],
+                AppTextField(
+                  label: 'Email Address',
+                  controller: _emailController,
+                  hintText: 'name@example.com',
+                  keyboardType: TextInputType.emailAddress,
+                  prefixIcon: Icons.email_outlined,
+                  validator: Validators.validateEmail,
+                ),
+                const SizedBox(height: 16),
+                AppTextField(
+                  label: 'Password',
+                  controller: _passwordController,
+                  hintText: 'Enter your password',
+                  obscureText: true,
+                  prefixIcon: Icons.lock_outline,
+                  validator: Validators.validatePassword,
+                ),
+                const SizedBox(height: 22),
+                PrimaryButton(
+                  label:
+                      'Sign in as ${_selectedRole.name[0].toUpperCase()}${_selectedRole.name.substring(1)}',
+                  onPressed: _handleLogin,
+                  isLoading: authProvider.isLoading,
+                ),
+                const SizedBox(height: 14),
+                Center(
+                  child: TextButton(
+                    onPressed: () => context.push(RoutePaths.register),
+                    child: const Text.rich(
+                      TextSpan(
+                        children: [
+                          TextSpan(
+                            text: 'Need an account?  ',
+                            style: TextStyle(color: AppColors.muted, fontSize: 13.5),
+                          ),
+                          TextSpan(
+                            text: 'Register here',
+                            style: TextStyle(
+                              color: AppColors.primary,
+                              fontWeight: FontWeight.w700,
+                              fontSize: 13.5,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
 
     return Scaffold(
       backgroundColor: AppColors.ground,
       body: SafeArea(
-        child: Center(
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 480),
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
-              child: Form(
-                key: _formKey,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // Brand Header
-                    const Row(
-                      children: [
-                        BrandLogo(
-                          width: 44,
-                          height: 44,
-                        ),
-                        SizedBox(width: 12),
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text('Therapy Pal',
-                                style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 16,
-                                    color: AppColors.ink)),
-                            Text('Treatment Regimen Management',
-                                style: TextStyle(
-                                    fontSize: 12, color: AppColors.muted)),
-                          ],
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 32),
-
-                    const Text(
-                      'Welcome back',
-                      style: TextStyle(
-                          fontSize: 26,
-                          fontWeight: FontWeight.bold,
-                          color: AppColors.ink,
-                          letterSpacing: -0.5),
-                    ),
-                    const SizedBox(height: 6),
-                    const Text(
-                      'Sign in to follow your regimen or manage your patient panel.',
-                      style: TextStyle(fontSize: 14, color: AppColors.muted),
-                    ),
-                    const SizedBox(height: 24),
-
-                    // Segmented Role Selector
-                    Container(
-                      padding: const EdgeInsets.all(4),
+        child: isWide
+            ? Row(
+                children: [
+                  Expanded(
+                    flex: 11,
+                    child: form,
+                  ),
+                  Expanded(
+                    flex: 9,
+                    child: Container(
+                      margin: const EdgeInsets.all(16),
+                      padding: const EdgeInsets.all(32),
                       decoration: BoxDecoration(
-                        color: const Color(0xFFE6EEF0),
-                        borderRadius: BorderRadius.circular(14),
+                        borderRadius: BorderRadius.circular(24),
+                        gradient: const LinearGradient(
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                          colors: [AppColors.primary, AppColors.primaryDark],
+                        ),
                       ),
-                      child: Row(
-                        children: [
-                          _roleOption(UserRole.patient, 'Patient'),
-                          _roleOption(UserRole.clinician, 'Clinician'),
-                          _roleOption(UserRole.admin, 'Admin'),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(height: 20),
-
-                    if (authProvider.errorMessage != null) ...[
-                      Text(authProvider.errorMessage!,
-                          style: const TextStyle(
-                              color: AppColors.danger, fontSize: 12)),
-                      const SizedBox(height: 12),
-                    ],
-
-                    AppTextField(
-                      label: 'Email Address',
-                      controller: _emailController,
-                      hintText: 'name@example.com',
-                      keyboardType: TextInputType.emailAddress,
-                      prefixIcon: Icons.email_outlined,
-                      validator: Validators.validateEmail,
-                    ),
-                    const SizedBox(height: 16),
-
-                    AppTextField(
-                      label: 'Password',
-                      controller: _passwordController,
-                      hintText: 'Enter your password',
-                      obscureText: true,
-                      prefixIcon: Icons.lock_outline,
-                      validator: Validators.validatePassword,
-                    ),
-                    const SizedBox(height: 24),
-
-                    PrimaryButton(
-                      label:
-                          'Sign in as ${_selectedRole.name[0].toUpperCase()}${_selectedRole.name.substring(1)}',
-                      onPressed: _handleLogin,
-                      isLoading: authProvider.isLoading,
-                    ),
-                    const SizedBox(height: 16),
-
-                    Center(
-                      child: TextButton(
-                        onPressed: () => context.push(RoutePaths.register),
-                        child: const Text('Need an account? Register here',
-                            style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                color: AppColors.primary)),
+                      child: Center(
+                        child: ConstrainedBox(
+                          constraints: const BoxConstraints(maxWidth: 360),
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Container(
+                                padding: const EdgeInsets.all(12),
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(18),
+                                ),
+                                child: const BrandLogo(width: 44, height: 44),
+                              ),
+                              const SizedBox(height: 28),
+                              const Text(
+                                'Your treatment regimen, in one calm place.',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 30,
+                                  fontWeight: FontWeight.w700,
+                                  height: 1.2,
+                                  letterSpacing: -0.6,
+                                ),
+                              ),
+                              const SizedBox(height: 12),
+                              const Text(
+                                'Track doses, follow your schedule and stay in touch with your care team.',
+                                style: TextStyle(
+                                  color: Color(0xE6FFFFFF),
+                                  fontSize: 15,
+                                  height: 1.5,
+                                ),
+                              ),
+                              const SizedBox(height: 28),
+                              _infoRow(Icons.schedule_outlined, 'Daily dose schedule with reminders'),
+                              _infoRow(Icons.trending_up_rounded, 'Adherence you can see at a glance'),
+                              _infoRow(Icons.chat_bubble_outline_rounded, 'Direct messages with your clinician'),
+                            ],
+                          ),
+                        ),
                       ),
                     ),
-                  ],
+                  ),
+                ],
+              )
+            : form,
+      ),
+    );
+  }
+
+  Widget _infoRow(IconData icon, String text) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 18),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            width: 36,
+            height: 36,
+            decoration: BoxDecoration(
+              color: Colors.white.withValues(alpha: 0.15),
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Icon(icon, size: 19, color: Colors.white),
+          ),
+          const SizedBox(width: 14),
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.only(top: 7),
+              child: Text(
+                text,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 15,
+                  fontWeight: FontWeight.w600,
+                  height: 1.35,
                 ),
               ),
             ),
           ),
-        ),
+        ],
       ),
     );
   }
