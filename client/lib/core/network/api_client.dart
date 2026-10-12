@@ -118,20 +118,26 @@ class ApiClient {
       return body;
     }
 
-    final message = body is Map && body['error'] != null
-        ? body['error']
-        : 'HTTP ${response.statusCode}';
+    String message = 'HTTP ${response.statusCode}';
+    if (body is Map) {
+      if (body['error'] is Map && body['error']['message'] != null) {
+        message = body['error']['message'].toString();
+      } else if (body['message'] != null) {
+        message = body['message'].toString();
+      } else if (body['error'] != null) {
+        message = body['error'].toString();
+      }
+    }
 
     switch (response.statusCode) {
       case 401:
-        throw UnauthorizedException(message: message.toString());
+        throw UnauthorizedException(message: message);
       case 403:
-        throw ForbiddenException(message: message.toString());
+        throw ForbiddenException(message: message);
       case 404:
-        throw NotFoundException(message: message.toString());
+        throw NotFoundException(message: message);
       default:
-        throw ApiException(
-            message: message.toString(), statusCode: response.statusCode);
+        throw ApiException(message: message, statusCode: response.statusCode);
     }
   }
 
