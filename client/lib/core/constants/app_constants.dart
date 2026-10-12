@@ -3,7 +3,8 @@
 class AppConstants {
   static const String appName = 'Therapy Pal';
   static const String appTagline = 'Treatment Regimen Management';
-  static const String apiBaseUrl = 'https://therapy-pal.vercel.app/';
+  static const String apiBaseUrl = 'https://therapy-pal.vercel.app/api';
+  static const String backendHealthUrl = 'https://therapy-pal.vercel.app/health';
 
   // Storage Keys
   static const String tokenKey = 'tp_auth_token';

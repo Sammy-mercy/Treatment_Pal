@@ -3,6 +3,7 @@ import 'dart:async';
 
 import 'package:firebase_auth/firebase_auth.dart';
 import '../../../core/network/api_client.dart';
+import '../../../core/network/api_exception.dart';
 import '../../../models/user_model.dart';
 
 class AuthRepository {
@@ -15,12 +16,23 @@ class AuthRepository {
   FirebaseAuth get _firebaseAuth =>
       _firebaseAuthOverride ?? FirebaseAuth.instance;
 
+  Future<void> ensureBackendIsAvailable() async {
+    final healthy = await _apiClient.isBackendHealthy();
+    if (!healthy) {
+      throw ApiException(
+        message:
+            'Therapy Pal is temporarily unavailable. Please try again in a moment.',
+      );
+    }
+  }
+
   Future<Map<String, dynamic>> login(
     String email,
     String password, {
     required UserRole role,
   }) async {
     if (role == UserRole.admin) {
+      await ensureBackendIsAvailable();
       final response = await _apiClient.post(
         '/auth/login',
         body: {'email': email, 'password': password},
@@ -39,6 +51,7 @@ class AuthRepository {
     _apiClient
         .setAuthTokenProvider(() => _firebaseAuth.currentUser?.getIdToken());
     _apiClient.setAuthToken(token);
+    await ensureBackendIsAvailable();
     final response = await _apiClient.post('/auth/session', body: const {});
 
     final user = UserModel.fromJson(response['user']);
@@ -65,6 +78,7 @@ class AuthRepository {
     _apiClient.setAuthToken(token);
 
     try {
+      await ensureBackendIsAvailable();
       final response = await _apiClient.post(
         '/auth/register',
         body: {
