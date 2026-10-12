@@ -32,7 +32,9 @@ class AuthService {
     const configuredEmail = process.env.ADMIN_EMAIL || '';
     if (!configuredEmail || email.toLowerCase() !== configuredEmail.toLowerCase() ||
         !safeEqual(password, process.env.ADMIN_PASSWORD)) {
-      throw { statusCode: 401, message: 'Invalid credentials' };
+      const error = new Error('Email or password is incorrect.');
+      error.statusCode = 401;
+      throw error;
     }
 
     const user = {
