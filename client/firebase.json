@@ -1,1 +1,39 @@
-{"flutter":{"platforms":{"android":{"default":{"projectId":"therapy-pal-c90a4","appId":"1:1091313639262:android:f4013ac118bf0b882679cf","fileOutput":"android/app/google-services.json"}},"dart":{"lib/firebase_options.dart":{"projectId":"therapy-pal-c90a4","configurations":{"android":"1:1091313639262:android:f4013ac118bf0b882679cf","ios":"1:1091313639262:ios:247a49e954fa27fb2679cf","macos":"1:1091313639262:ios:247a49e954fa27fb2679cf","web":"1:1091313639262:web:ec0f0272a3ccbfa72679cf","windows":"1:1091313639262:web:32a628f2e2e478ac2679cf"}}}}}}
+{
+  "flutter": {
+    "platforms": {
+      "android": {
+        "default": {
+          "projectId": "therapy-pal-c90a4",
+          "appId": "1:1091313639262:android:f4013ac118bf0b882679cf",
+          "fileOutput": "android/app/google-services.json"
+        }
+      },
+      "dart": {
+        "lib/firebase_options.dart": {
+          "projectId": "therapy-pal-c90a4",
+          "configurations": {
+            "android": "1:1091313639262:android:f4013ac118bf0b882679cf",
+            "ios": "1:1091313639262:ios:247a49e954fa27fb2679cf",
+            "macos": "1:1091313639262:ios:247a49e954fa27fb2679cf",
+            "web": "1:1091313639262:web:ec0f0272a3ccbfa72679cf",
+            "windows": "1:1091313639262:web:32a628f2e2e478ac2679cf"
+          }
+        }
+      }
+    }
+  },
+  "hosting": {
+    "public": "build/web",
+    "ignore": [
+      "firebase.json",
+      "**/.*",
+      "**/node_modules/**"
+    ],
+    "rewrites": [
+      {
+        "source": "**",
+        "destination": "/index.html"
+      }
+    ]
+  }
+}
