@@ -2,6 +2,8 @@
 
 Dual-role treatment regimen and medication adherence management platform for patients and clinicians.
 
+See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for a detailed architecture guide, including plain-language explanations of engineering terms.
+
 ## 📁 Project Structure
 
 ```
