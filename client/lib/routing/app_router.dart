@@ -1,6 +1,9 @@
 // routing/app_router.dart
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import '../core/utils/browser_location_stub.dart'
+    if (dart.library.html) '../core/utils/browser_location_web.dart'
+    as browser_location;
 import '../features/auth/logic/auth_provider.dart';
 import '../features/auth/presentation/screens/login_screen.dart';
 import '../features/auth/presentation/screens/register_screen.dart';
@@ -51,7 +54,8 @@ GoRouter createAppRouter(AuthProvider authProvider) {
       GoRoute(
         path: RoutePaths.login,
         builder: (context, state) => LoginScreen(
-          adminPortal: Uri.base.path == '/admin' || Uri.base.path == '/admin/',
+          adminPortal: browser_location.browserPath == '/admin' ||
+              browser_location.browserPath == '/admin/',
         ),
       ),
       GoRoute(
