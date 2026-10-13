@@ -24,6 +24,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final _lastNameController = TextEditingController();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
+  final _confirmPasswordController = TextEditingController();
   UserRole _role = UserRole.patient;
 
   @override
@@ -32,6 +33,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
     _lastNameController.dispose();
     _emailController.dispose();
     _passwordController.dispose();
+    _confirmPasswordController.dispose();
     super.dispose();
   }
 
@@ -219,6 +221,23 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   obscureText: true,
                   prefixIcon: Icons.lock_outline,
                   validator: Validators.validatePassword,
+                ),
+                const SizedBox(height: 16),
+                AppTextField(
+                  label: 'Confirm Password',
+                  controller: _confirmPasswordController,
+                  hintText: 'Re-enter your password',
+                  obscureText: true,
+                  prefixIcon: Icons.lock_outline,
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please confirm your password';
+                    }
+                    if (value != _passwordController.text) {
+                      return 'Passwords do not match';
+                    }
+                    return null;
+                  },
                 ),
                 const SizedBox(height: 22),
                 PrimaryButton(
