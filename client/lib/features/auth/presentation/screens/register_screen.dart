@@ -20,16 +20,26 @@ class RegisterScreen extends StatefulWidget {
 
 class _RegisterScreenState extends State<RegisterScreen> {
   final _formKey = GlobalKey<FormState>();
-  final _nameController = TextEditingController();
+  final _firstNameController = TextEditingController();
+  final _lastNameController = TextEditingController();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   UserRole _role = UserRole.patient;
+
+  @override
+  void dispose() {
+    _firstNameController.dispose();
+    _lastNameController.dispose();
+    _emailController.dispose();
+    _passwordController.dispose();
+    super.dispose();
+  }
 
   Future<void> _submitRegistration() async {
     if (!_formKey.currentState!.validate()) return;
     final authProvider = context.read<AuthProvider>();
     final registered = await authProvider.register(
-      name: _nameController.text.trim(),
+      name: '${_firstNameController.text.trim()} ${_lastNameController.text.trim()}',
       email: _emailController.text.trim(),
       password: _passwordController.text,
       role: _role,
@@ -180,10 +190,17 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   const SizedBox(height: 14),
                 ],
                 AppTextField(
-                  label: 'Full Name',
-                  controller: _nameController,
-                  hintText: 'Your full name',
-                  validator: (v) => Validators.validateRequired(v, 'Full name'),
+                  label: 'First Name',
+                  controller: _firstNameController,
+                  hintText: 'Your first name',
+                  validator: (v) => Validators.validateRequired(v, 'First name'),
+                ),
+                const SizedBox(height: 16),
+                AppTextField(
+                  label: 'Last Name',
+                  controller: _lastNameController,
+                  hintText: 'Your last name',
+                  validator: (v) => Validators.validateRequired(v, 'Last name'),
                 ),
                 const SizedBox(height: 16),
                 AppTextField(

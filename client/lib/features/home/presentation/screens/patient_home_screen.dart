@@ -44,7 +44,7 @@ class PatientHomeScreen extends StatelessWidget {
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('Good morning, ${user?.name.split(" ")[0] ?? "Alex"}',
+                Text('Good morning, ${user?.firstName.isNotEmpty == true ? user!.firstName : "Alex"}',
                     style: const TextStyle(
                         fontWeight: FontWeight.bold, fontSize: 15)),
                 const Text('Recovery Plan Active',

@@ -25,6 +25,11 @@ class UserModel {
     this.assignedClinicianId,
   });
 
+  String get firstName {
+    final parts = name.trim().split(RegExp(r'\s+'));
+    return parts.isNotEmpty && parts.first.isNotEmpty ? parts.first : '';
+  }
+
   String get initials {
     final parts = name.trim().split(RegExp(r'\s+'));
     if (parts.length > 1) {
