@@ -12,7 +12,9 @@ import '../../../../shared/widgets/brand_logo.dart';
 import '../../logic/auth_provider.dart';
 
 class LoginScreen extends StatefulWidget {
-  const LoginScreen({super.key});
+  final bool adminPortal;
+
+  const LoginScreen({super.key, this.adminPortal = false});
 
   @override
   State<LoginScreen> createState() => _LoginScreenState();
@@ -23,6 +25,19 @@ class _LoginScreenState extends State<LoginScreen> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   UserRole _selectedRole = UserRole.patient;
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.adminPortal) _selectedRole = UserRole.admin;
+  }
+
+  @override
+  void dispose() {
+    _emailController.dispose();
+    _passwordController.dispose();
+    super.dispose();
+  }
 
   void _onRoleChanged(UserRole role) {
     setState(() {
@@ -130,9 +145,9 @@ class _LoginScreenState extends State<LoginScreen> {
                   ],
                 ),
                 const SizedBox(height: 28),
-                const Text(
-                  'Welcome back',
-                  style: TextStyle(
+                Text(
+                  widget.adminPortal ? 'Admin sign in' : 'Welcome back',
+                  style: const TextStyle(
                     fontSize: 26,
                     fontWeight: FontWeight.w700,
                     color: AppColors.ink,
@@ -140,26 +155,30 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                 ),
                 const SizedBox(height: 8),
-                const Text(
-                  'Sign in to follow your regimen or manage your patient panel.',
-                  style: TextStyle(fontSize: 14, color: AppColors.muted, height: 1.5),
+                Text(
+                  widget.adminPortal
+                      ? 'Sign in to manage Therapy Pal.'
+                      : 'Sign in to follow your regimen or manage your patient panel.',
+                  style: const TextStyle(
+                      fontSize: 14, color: AppColors.muted, height: 1.5),
                 ),
                 const SizedBox(height: 22),
-                Container(
-                  padding: const EdgeInsets.all(4),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFE6EEF0),
-                    borderRadius: BorderRadius.circular(14),
+                if (!widget.adminPortal) ...[
+                  Container(
+                    padding: const EdgeInsets.all(4),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFE6EEF0),
+                      borderRadius: BorderRadius.circular(14),
+                    ),
+                    child: Row(
+                      children: [
+                        _roleOption(UserRole.patient, 'Patient'),
+                        _roleOption(UserRole.clinician, 'Clinician'),
+                      ],
+                    ),
                   ),
-                  child: Row(
-                    children: [
-                      _roleOption(UserRole.patient, 'Patient'),
-                      _roleOption(UserRole.clinician, 'Clinician'),
-                      _roleOption(UserRole.admin, 'Admin'),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 18),
+                  const SizedBox(height: 18),
+                ],
                 if (authProvider.errorMessage != null) ...[
                   Container(
                     padding: const EdgeInsets.all(12),
@@ -212,29 +231,31 @@ class _LoginScreenState extends State<LoginScreen> {
                   isLoading: authProvider.isLoading,
                 ),
                 const SizedBox(height: 14),
-                Center(
-                  child: TextButton(
-                    onPressed: () => context.push(RoutePaths.register),
-                    child: const Text.rich(
-                      TextSpan(
-                        children: [
-                          TextSpan(
-                            text: 'Need an account?  ',
-                            style: TextStyle(color: AppColors.muted, fontSize: 13.5),
-                          ),
-                          TextSpan(
-                            text: 'Register here',
-                            style: TextStyle(
-                              color: AppColors.primary,
-                              fontWeight: FontWeight.w700,
-                              fontSize: 13.5,
+                if (!widget.adminPortal)
+                  Center(
+                    child: TextButton(
+                      onPressed: () => context.push(RoutePaths.register),
+                      child: const Text.rich(
+                        TextSpan(
+                          children: [
+                            TextSpan(
+                              text: 'Need an account?  ',
+                              style: TextStyle(
+                                  color: AppColors.muted, fontSize: 13.5),
                             ),
-                          ),
-                        ],
+                            TextSpan(
+                              text: 'Register here',
+                              style: TextStyle(
+                                color: AppColors.primary,
+                                fontWeight: FontWeight.w700,
+                                fontSize: 13.5,
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                   ),
-                ),
               ],
             ),
           ),

@@ -50,7 +50,9 @@ GoRouter createAppRouter(AuthProvider authProvider) {
       // Auth routes
       GoRoute(
         path: RoutePaths.login,
-        builder: (context, state) => const LoginScreen(),
+        builder: (context, state) => LoginScreen(
+          adminPortal: Uri.base.path == '/admin' || Uri.base.path == '/admin/',
+        ),
       ),
       GoRoute(
         path: RoutePaths.register,
