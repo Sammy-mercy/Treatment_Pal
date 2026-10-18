@@ -15,8 +15,8 @@ export async function connectDB() {
     db = client.db();
     
     // Create indexes
-    await db.collection('users').createIndex({ email: 1 }, { unique: true });
-    await db.collection('users').createIndex({ firebaseUid: 1 }, { sparse: true });
+    await db.collection('users').createIndex({ email: 1 }, { unique: true, sparse: true });
+    await db.collection('users').createIndex({ firebaseUid: 1 }, { unique: true, sparse: true });
     await db.collection('regimens').createIndex({ patientId: 1 });
     await db.collection('regimen_items').createIndex({ regimenId: 1 });
     await db.collection('adherence_logs').createIndex({ patientId: 1, scheduledAt: -1 });
@@ -32,6 +32,7 @@ export async function connectDB() {
     console.log('[db] Connected to MongoDB');
   } catch (err) {
     console.error('[db] MongoDB connection error:', err.message);
+    throw err;
   }
 }
 
