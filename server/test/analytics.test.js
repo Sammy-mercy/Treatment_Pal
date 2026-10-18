@@ -1,5 +1,8 @@
-const { after, before, test } = require('node:test');
-const assert = require('node:assert/strict');
+import { after, before, test } from 'node:test';
+import assert from 'node:assert/strict';
+import jwt from 'jsonwebtoken';
+import { connectDB, disconnectDB } from '../config/db.js';
+import app from '../app.js';
 
 process.env.NODE_ENV = 'test';
 process.env.JWT_SECRET = 'test-only-secret-long-enough-for-hmac-signing';
@@ -7,15 +10,12 @@ process.env.ADMIN_EMAIL = 'admin@test.local';
 process.env.ADMIN_PASSWORD = 'test-admin-password-strong';
 process.env.ADMIN_TOKEN_SECRET = 'test-only-admin-secret-different-from-jwt-secret';
 process.env.TEST_FIREBASE_TOKEN_SECRET = 'test-only-firebase-token-secret';
-const jwt = require('jsonwebtoken');
-const db = require('../config/db');
 
-const app = require('../app');
 let server;
 let baseUrl;
 
 before(async () => {
-  await db.connect();
+  await connectDB();
   server = app.listen(0, '127.0.0.1');
   await new Promise((resolve) => server.once('listening', resolve));
   baseUrl = `http://127.0.0.1:${server.address().port}`;
@@ -23,7 +23,7 @@ before(async () => {
 
 after(async () => {
   if (server) await new Promise((resolve) => server.close(resolve));
-  await db.disconnect();
+  await disconnectDB();
 });
 
 async function request(path, { method = 'GET', body, token } = {}) {

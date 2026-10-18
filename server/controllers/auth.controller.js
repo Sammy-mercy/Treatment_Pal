@@ -1,7 +1,8 @@
 // controllers/auth.controller.js
-const authService = require('../services/auth.service');
+import * as authService from '../services/auth.service.js';
+import { findOne } from '../config/db.js';
 
-async function login(req, res, next) {
+export async function login(req, res, next) {
   try {
     const { email, password } = req.body;
     const result = await authService.loginAdmin(email, password);
@@ -11,25 +12,30 @@ async function login(req, res, next) {
   }
 }
 
-async function createSession(req, res, next) {
+export async function createSession(req, res, next) {
   try {
-    const user = await authService.getFirebaseUser(req.firebaseIdentity);
-    res.status(200).json({ user });
+    const user = await findOne('users', { firebaseUid: req.firebaseIdentity.uid });
+    if (!user) {
+      return res.status(404).json({ error: { message: 'No profile found. Please register first.' } });
+    }
+    const profile = await authService.getProfile(user.id);
+    res.status(200).json({ user: profile });
   } catch (error) {
     next(error);
   }
 }
 
-async function register(req, res, next) {
+export async function register(req, res, next) {
   try {
-    const user = await authService.register(req.body, req.firebaseIdentity);
-    res.status(201).json({ user });
+    const user = await authService.registerUser(req.body, req.firebaseIdentity?.uid);
+    const profile = await authService.getProfile(user.id);
+    res.status(201).json({ user: profile });
   } catch (error) {
     next(error);
   }
 }
 
-module.exports = {
+export default {
   login,
   createSession,
   register,

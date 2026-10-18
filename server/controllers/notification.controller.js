@@ -1,7 +1,7 @@
 // controllers/notification.controller.js
-const notificationService = require('../services/notification.service');
+import * as notificationService from '../services/notification.service.js';
 
-async function getNotifications(req, res, next) {
+export async function getNotifications(req, res, next) {
   try {
     const list = await notificationService.getNotifications(req.user.id);
     res.status(200).json(list);
@@ -10,16 +10,16 @@ async function getNotifications(req, res, next) {
   }
 }
 
-async function markAllRead(req, res, next) {
+export async function markAllRead(req, res, next) {
   try {
     const result = await notificationService.markAllRead(req.user.id);
-    res.status(200).json(result);
+    res.status(200).json(result || { ok: true });
   } catch (error) {
     next(error);
   }
 }
 
-async function registerToken(req, res, next) {
+export async function registerToken(req, res, next) {
   try {
     const { token } = req.body;
     const result = await notificationService.registerDeviceToken(req.user.id, token);
@@ -29,7 +29,7 @@ async function registerToken(req, res, next) {
   }
 }
 
-module.exports = {
+export default {
   getNotifications,
   markAllRead,
   registerToken

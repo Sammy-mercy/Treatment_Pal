@@ -1,7 +1,7 @@
 // models/AdherenceLog.js
 // AdherenceLog Schema: regimenItemId, patientId, status ('taken' | 'missed'), scheduledAt, loggedAt
 
-class AdherenceLog {
+export default class AdherenceLog {
   constructor(data) {
     this.id = data.id || `log_${Date.now()}`;
     this.regimenItemId = data.regimenItemId;
@@ -24,5 +24,3 @@ class AdherenceLog {
     };
   }
 }
-
-module.exports = AdherenceLog;

@@ -1,16 +1,20 @@
-const firebaseService = require('../config/firebase');
+import { verifyFirebaseToken } from '../config/firebase.js';
+import { HttpError } from './errorHandler.js';
 
-async function authenticateFirebase(req, res, next) {
+export async function authenticateFirebase(req, _res, next) {
   try {
-    const authorization = req.headers.authorization || '';
-    if (!authorization.startsWith('Bearer ')) {
-      return res.status(401).json({ error: 'Firebase authentication required' });
+    const header = req.headers.authorization || '';
+    const token = header.startsWith('Bearer ') ? header.slice(7) : null;
+    
+    if (!token) {
+      return next(new HttpError(401, 'Firebase token required'));
     }
-    req.firebaseIdentity = await firebaseService.verifyFirebaseIdToken(authorization.slice(7));
-    return next();
-  } catch (error) {
-    return res.status(401).json({ error: 'Unauthorized: Invalid Firebase ID token' });
+    
+    const decoded = await verifyFirebaseToken(token);
+    req.firebaseIdentity = decoded;
+    next();
+  } catch (err) {
+    next(new HttpError(401, 'Invalid or expired Firebase token'));
   }
 }
-
-module.exports = authenticateFirebase;
+export default authenticateFirebase;

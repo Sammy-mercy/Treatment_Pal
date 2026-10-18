@@ -1,20 +1,19 @@
-// middleware/errorHandler.js
-
-function errorHandler(err, req, res, next) {
-  console.error('Unhandled Application Error:', err);
-
-  const statusCode = err.statusCode || 500;
-  const message = err.message || 'Internal Server Error';
-
-  res.status(statusCode).json({
-    success: false,
-    error: {
-      message,
-      statusCode,
-      timestamp: new Date().toISOString(),
-      path: req.originalUrl
-    }
+export function errorHandler(err, _req, res, _next) {
+  const status = err.status || err.statusCode || 500;
+  const message = err.message || 'Internal server error';
+  
+  if (process.env.NODE_ENV !== 'production') {
+    console.error(`[error] ${status}: ${message}`);
+  }
+  
+  res.status(status).json({
+    error: { message, status }
   });
 }
 
-module.exports = errorHandler;
+export class HttpError extends Error {
+  constructor(status, message) {
+    super(message);
+    this.status = status;
+  }
+}

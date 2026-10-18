@@ -1,19 +1,14 @@
-// middleware/authorize.js
+import { HttpError } from './errorHandler.js';
 
-function authorize(...allowedRoles) {
-  return (req, res, next) => {
+export function authorize(...roles) {
+  return (req, _res, next) => {
     if (!req.user) {
-      return res.status(401).json({ error: 'Authentication required' });
+      return next(new HttpError(401, 'Authentication required'));
     }
-
-    if (!allowedRoles.includes(req.user.role)) {
-      return res.status(403).json({
-        error: `Forbidden: Access restricted to roles [${allowedRoles.join(', ')}]. Current role: ${req.user.role}`
-      });
+    if (!roles.includes(req.user.role)) {
+      return next(new HttpError(403, `This area is for ${roles.join(' or ')} only`));
     }
-
     next();
   };
 }
-
-module.exports = authorize;
+export default authorize;

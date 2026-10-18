@@ -1,10 +1,18 @@
-const express = require('express');
-const analyticsController = require('../controllers/analytics.controller');
-const authenticateRequired = require('../middleware/authenticateRequired');
-const authorize = require('../middleware/authorize');
+import { Router } from 'express';
+import { authenticateRequired } from '../middleware/authenticateRequired.js';
+import { authorize } from '../middleware/authorize.js';
+import { getDashboardStats } from '../services/analytics.service.js';
 
-const router = express.Router();
+const router = Router();
 
-router.get('/dashboard-stats', authenticateRequired, authorize('admin'), analyticsController.getDashboardStats);
+// GET /api/admin/dashboard-stats
+router.get('/dashboard-stats', authenticateRequired, authorize('admin'), async (_req, res, next) => {
+  try {
+    const stats = await getDashboardStats();
+    res.json(stats);
+  } catch (err) {
+    next(err);
+  }
+});
 
-module.exports = router;
+export default router;

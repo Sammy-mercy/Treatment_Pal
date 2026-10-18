@@ -1,7 +1,7 @@
 // models/RegimenItem.js
 // RegimenItem Schema: drugName, dosage, frequency, times, type, regimenId
 
-class RegimenItem {
+export default class RegimenItem {
   constructor(data) {
     this.id = data.id || `item_${Date.now()}`;
     this.regimenId = data.regimenId;
@@ -28,5 +28,3 @@ class RegimenItem {
     };
   }
 }
-
-module.exports = RegimenItem;

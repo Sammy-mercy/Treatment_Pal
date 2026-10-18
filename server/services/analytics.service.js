@@ -1,57 +1,59 @@
-const db = require('../config/db');
+import { findOne, insertOne, updateOne, countDocs } from '../config/db.js';
+import crypto from 'crypto';
 
-class AnalyticsService {
-  async recordAnonymousVisit(visitorId, userAgent) {
-    await db.recordVisit({
-      visitorId,
-      kind: 'anonymous',
-      userAgent: String(userAgent || '').slice(0, 300),
-      visitedAt: new Date(),
+export async function recordAnonymousVisit(visitorId) {
+  const existing = await findOne('analytics_visits', { visitorId });
+  if (existing) {
+    await updateOne('analytics_visits', { visitorId }, {
+      $inc: { visitCount: 1 },
+      $set: { lastVisitAt: new Date().toISOString() },
     });
-    return { recorded: true };
+    return { returning: true };
   }
-
-  async recordUserVisit(user) {
-    if (!user || !user.id) throw { statusCode: 401, message: 'Authenticated user id is required' };
-    const visitedAt = new Date();
-    await db.updateUserVisit(user.id, {
-      id: user.id,
-      firebaseUid: user.id,
-      email: user.email || null,
-      name: user.name || null,
-      role: user.role || null,
-    }, visitedAt);
-    await db.recordVisit({
-      userId: user.id,
-      kind: 'authenticated',
-      visitedAt,
-    });
-    return { recorded: true, lastActiveAt: visitedAt.toISOString() };
-  }
-
-  async getDashboardStats() {
-    const todayStart = new Date();
-    todayStart.setHours(0, 0, 0, 0);
-    const [users, visits] = await Promise.all([db.getUsers(), db.getAnonymousVisits()]);
-    const anonymousFrequency = new Map();
-    const anonymousToday = new Set();
-
-    for (const visit of visits) {
-      anonymousFrequency.set(visit.visitorId, (anonymousFrequency.get(visit.visitorId) || 0) + 1);
-      if (new Date(visit.visitedAt) >= todayStart) anonymousToday.add(visit.visitorId);
-    }
-
-    const registeredUsers = users.filter((user) => user.role !== 'admin');
-    return {
-      totalUsers: registeredUsers.length,
-      activeToday: registeredUsers.filter((user) => user.lastActiveAt && new Date(user.lastActiveAt) >= todayStart).length,
-      returningUsers: registeredUsers.filter((user) => (user.totalVisits || 0) > 1).length,
-      anonymousVisits: visits.length,
-      anonymousActiveToday: anonymousToday.size,
-      returningAnonymousVisitors: [...anonymousFrequency.values()].filter((count) => count > 1).length,
-      storage: 'mongodb',
-    };
-  }
+  await insertOne('analytics_visits', {
+    id: crypto.randomUUID(),
+    visitorId,
+    visitCount: 1,
+    lastVisitAt: new Date().toISOString(),
+    createdAt: new Date().toISOString(),
+  });
+  return { returning: false };
 }
 
-module.exports = new AnalyticsService();
+export async function recordAuthenticatedVisit(userId) {
+  await updateOne('users', { id: userId }, {
+    $inc: { totalVisits: 1 },
+    $set: { lastActiveAt: new Date().toISOString() },
+  });
+  return { ok: true };
+}
+
+export async function recordUserVisit(userOrId) {
+  const userId = typeof userOrId === 'object' && userOrId !== null ? (userOrId.id || userOrId.uid) : userOrId;
+  return recordAuthenticatedVisit(userId);
+}
+
+export async function getDashboardStats() {
+  const totalUsers = await countDocs('users', {});
+  const today = new Date().toISOString().slice(0, 10);
+  const activeToday = await countDocs('users', {
+    lastActiveAt: { $gte: today },
+  });
+  const returningUsers = await countDocs('users', { totalVisits: { $gt: 1 } });
+  const anonymousVisits = await countDocs('analytics_visits', {});
+  const anonymousActiveToday = await countDocs('analytics_visits', {
+    lastVisitAt: { $gte: today },
+  });
+  const returningAnonymous = await countDocs('analytics_visits', { visitCount: { $gt: 1 } });
+  
+  return {
+    totalUsers,
+    activeToday,
+    returningUsers,
+    anonymousVisits,
+    anonymousActiveToday,
+    returningAnonymous,
+    returningAnonymousVisitors: returningAnonymous,
+    storage: 'mongodb',
+  };
+}

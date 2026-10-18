@@ -1,7 +1,7 @@
 // models/User.js
 // User Schema: handles patient and clinician identities
 
-class User {
+export default class User {
   constructor(data) {
     this.id = data.id || `usr_${Date.now()}`;
     this.name = data.name;
@@ -34,5 +34,3 @@ class User {
     };
   }
 }
-
-module.exports = User;

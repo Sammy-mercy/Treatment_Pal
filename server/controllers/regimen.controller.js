@@ -1,16 +1,17 @@
 // controllers/regimen.controller.js
-const regimenService = require('../services/regimen.service');
+import * as regimenService from '../services/regimen.service.js';
 
-async function getRegimens(req, res, next) {
+export async function getRegimens(req, res, next) {
   try {
-    const regimens = await regimenService.getRegimensForUser(req.user);
+    const patientId = req.user.role === 'clinician' && req.query.patientId ? req.query.patientId : req.user.id;
+    const regimens = await regimenService.getRegimens(patientId);
     res.status(200).json(regimens);
   } catch (error) {
     next(error);
   }
 }
 
-async function getRegimenById(req, res, next) {
+export async function getRegimenById(req, res, next) {
   try {
     const regimen = await regimenService.getRegimenById(req.params.id);
     res.status(200).json(regimen);
@@ -19,38 +20,29 @@ async function getRegimenById(req, res, next) {
   }
 }
 
-async function createRegimen(req, res, next) {
+export async function createRegimen(req, res, next) {
   try {
-    const newRegimen = await regimenService.createRegimen(req.body, req.user.id);
+    const patientId = req.body.patientId || req.user.id;
+    const prescriberId = req.body.patientId ? req.user.id : null;
+    const newRegimen = await regimenService.createRegimen(patientId, prescriberId, req.body);
     res.status(201).json(newRegimen);
   } catch (error) {
     next(error);
   }
 }
 
-async function updateRegimen(req, res, next) {
+export async function updateRegimen(req, res, next) {
   try {
-    const updated = await regimenService.updateRegimen(req.params.id, req.body);
+    const updated = await regimenService.updateRegimen(req.params.id, req.user.id, req.body);
     res.status(200).json(updated);
   } catch (error) {
     next(error);
   }
 }
 
-async function toggleItem(req, res, next) {
-  try {
-    const { id, itemId } = req.params;
-    const item = await regimenService.toggleItemActive(id, itemId);
-    res.status(200).json(item);
-  } catch (error) {
-    next(error);
-  }
-}
-
-module.exports = {
+export default {
   getRegimens,
   getRegimenById,
   createRegimen,
   updateRegimen,
-  toggleItem
 };

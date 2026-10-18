@@ -1,7 +1,7 @@
 // models/Regimen.js
 // Regimen Schema: title, clinicianId, patientId, items[], status
 
-class Regimen {
+export default class Regimen {
   constructor(data) {
     this.id = data.id || `reg_${Date.now()}`;
     this.title = data.title;
@@ -28,5 +28,3 @@ class Regimen {
     };
   }
 }
-
-module.exports = Regimen;
