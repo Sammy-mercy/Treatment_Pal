@@ -13,8 +13,9 @@ class ClinicianShell extends StatelessWidget {
     final location = GoRouterState.of(context).matchedLocation;
     if (location.startsWith(RoutePaths.clinicianHome)) return 0;
     if (location.startsWith(RoutePaths.clinicianDirectory)) return 1;
-    if (location.startsWith(RoutePaths.clinicianAdherenceOverview)) return 2;
-    if (location.startsWith(RoutePaths.clinicianSettings)) return 3;
+    if (location.startsWith(RoutePaths.clinicianMessages)) return 2;
+    if (location.startsWith(RoutePaths.clinicianAdherenceOverview)) return 3;
+    if (location.startsWith(RoutePaths.clinicianProfile)) return 4;
     return 0;
   }
 
@@ -27,10 +28,13 @@ class ClinicianShell extends StatelessWidget {
         context.go(RoutePaths.clinicianDirectory);
         break;
       case 2:
-        context.go(RoutePaths.clinicianAdherenceOverview);
+        context.go(RoutePaths.clinicianMessages);
         break;
       case 3:
-        context.go(RoutePaths.clinicianSettings);
+        context.go(RoutePaths.clinicianAdherenceOverview);
+        break;
+      case 4:
+        context.go(RoutePaths.clinicianProfile);
         break;
     }
   }
@@ -47,17 +51,21 @@ class ClinicianShell extends StatelessWidget {
             selectedIcon: Icons.dashboard,
             label: 'Dashboard'),
         ResponsiveNavItem(
-            icon: Icons.people_outline,
-            selectedIcon: Icons.people,
+            icon: Icons.groups_outlined,
+            selectedIcon: Icons.groups,
             label: 'Patients'),
         ResponsiveNavItem(
-            icon: Icons.analytics_outlined,
+            icon: Icons.mail_outline,
+            selectedIcon: Icons.mail,
+            label: 'Messages'),
+        ResponsiveNavItem(
+            icon: Icons.bar_chart,
             selectedIcon: Icons.analytics,
             label: 'Analytics'),
         ResponsiveNavItem(
-            icon: Icons.settings_outlined,
-            selectedIcon: Icons.settings,
-            label: 'Settings'),
+            icon: Icons.person_outline,
+            selectedIcon: Icons.person,
+            label: 'Profile'),
       ],
       child: child,
     );

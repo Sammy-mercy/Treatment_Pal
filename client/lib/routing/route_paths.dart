@@ -23,5 +23,7 @@ class RoutePaths {
   static const String clinicianEditRegimen = '/clinician/regimens/:id/edit';
   static const String clinicianAdherenceOverview =
       '/clinician/adherence-overview';
+  static const String clinicianMessages = '/clinician/messages';
+  static const String clinicianProfile = '/clinician/profile';
   static const String clinicianSettings = '/clinician/settings';
 }

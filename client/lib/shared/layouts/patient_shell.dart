@@ -15,6 +15,7 @@ class PatientShell extends StatelessWidget {
     if (location.startsWith(RoutePaths.patientRegimens)) return 1;
     if (location.startsWith(RoutePaths.patientAdherence)) return 2;
     if (location.startsWith(RoutePaths.patientNotifications)) return 3;
+    if (location.startsWith(RoutePaths.patientProfile)) return 4;
     return 0;
   }
 
@@ -32,6 +33,9 @@ class PatientShell extends StatelessWidget {
       case 3:
         context.go(RoutePaths.patientNotifications);
         break;
+      case 4:
+        context.go(RoutePaths.patientProfile);
+        break;
     }
   }
 
@@ -45,17 +49,21 @@ class PatientShell extends StatelessWidget {
         ResponsiveNavItem(
             icon: Icons.home_outlined, selectedIcon: Icons.home, label: 'Home'),
         ResponsiveNavItem(
-            icon: Icons.medication_outlined,
+            icon: Icons.list_alt,
             selectedIcon: Icons.medication,
-            label: 'Regimen'),
+            label: 'My Regimen'),
         ResponsiveNavItem(
-            icon: Icons.show_chart,
-            selectedIcon: Icons.show_chart,
-            label: 'Adherence'),
+            icon: Icons.description_outlined,
+            selectedIcon: Icons.description,
+            label: 'Logs'),
         ResponsiveNavItem(
             icon: Icons.notifications_none,
             selectedIcon: Icons.notifications,
-            label: 'Alerts'),
+            label: 'Notifications'),
+        ResponsiveNavItem(
+            icon: Icons.person_outline,
+            selectedIcon: Icons.person,
+            label: 'Profile'),
       ],
       child: child,
     );

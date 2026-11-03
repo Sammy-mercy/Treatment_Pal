@@ -18,6 +18,9 @@ import '../features/adherence/presentation/screens/patient/adherence_log_screen.
 import '../features/adherence/presentation/screens/clinician/adherence_overview_screen.dart';
 import '../features/patient_directory/presentation/screens/patient_list_screen.dart';
 import '../features/notifications/presentation/screens/notification_settings_screen.dart';
+import '../features/profile/presentation/screens/patient_profile_screen.dart';
+import '../features/profile/presentation/screens/clinician_profile_screen.dart';
+import '../features/messages/presentation/screens/clinician_messages_screen.dart';
 import '../features/admin/presentation/screens/admin_dashboard_screen.dart';
 import '../shared/layouts/patient_shell.dart';
 import '../shared/layouts/clinician_shell.dart';
@@ -88,6 +91,10 @@ GoRouter createAppRouter(AuthProvider authProvider) {
             path: RoutePaths.patientNotifications,
             builder: (context, state) => const NotificationSettingsScreen(),
           ),
+          GoRoute(
+            path: RoutePaths.patientProfile,
+            builder: (context, state) => const PatientProfileScreen(),
+          ),
         ],
       ),
 
@@ -105,9 +112,17 @@ GoRouter createAppRouter(AuthProvider authProvider) {
             builder: (context, state) => const PatientListScreen(),
           ),
           GoRoute(
+            path: RoutePaths.clinicianMessages,
+            builder: (context, state) => const ClinicianMessagesScreen(),
+          ),
+          GoRoute(
             path: RoutePaths.clinicianAdherenceOverview,
             builder: (context, state) =>
                 const ClinicianAdherenceOverviewScreen(),
+          ),
+          GoRoute(
+            path: RoutePaths.clinicianProfile,
+            builder: (context, state) => const ClinicianProfileScreen(),
           ),
           GoRoute(
             path: RoutePaths.clinicianSettings,

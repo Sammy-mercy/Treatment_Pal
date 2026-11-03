@@ -25,6 +25,9 @@ class RegimenItemModel {
     this.active = true,
   });
 
+  bool get isTherapy => type == RegimenItemType.therapy;
+  bool get isMedication => type == RegimenItemType.medication;
+
   factory RegimenItemModel.fromJson(Map<String, dynamic> json) {
     return RegimenItemModel(
       id: json['id'] ?? '',

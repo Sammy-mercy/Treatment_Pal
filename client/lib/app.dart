@@ -6,14 +6,24 @@ import 'core/constants/app_constants.dart';
 import 'features/auth/logic/auth_provider.dart';
 import 'routing/app_router.dart';
 
-class TherapyPalApp extends StatelessWidget {
+class TherapyPalApp extends StatefulWidget {
   const TherapyPalApp({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    final authProvider = context.watch<AuthProvider>();
-    final router = createAppRouter(authProvider);
+  State<TherapyPalApp> createState() => _TherapyPalAppState();
+}
 
+class _TherapyPalAppState extends State<TherapyPalApp> {
+  late final router = createAppRouter(context.read<AuthProvider>());
+
+  @override
+  void dispose() {
+    router.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return MaterialApp.router(
       title: AppConstants.appName,
       debugShowCheckedModeBanner: false,
